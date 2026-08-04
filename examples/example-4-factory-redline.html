@@ -108,6 +108,18 @@
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.84; } }
   .verdict .summary { margin-top: 18px; font-size: 15px; color: var(--text-dim); max-width: 600px; margin-inline: auto; }
 
+  /* 风险提醒 */
+  .risk-note {
+    max-width: 720px; margin: -18px auto 44px;
+    display: flex; gap: 12px; align-items: flex-start;
+    background: linear-gradient(160deg, rgba(251,191,36,0.10), rgba(251,191,36,0.04));
+    border: 1px solid rgba(251,191,36,0.32); border-left: 3px solid var(--amber);
+    border-radius: 12px; padding: 14px 16px;
+    font-size: 13.5px; color: #fde68a; line-height: 1.75; text-align: left;
+  }
+  .risk-note svg { width: 20px; height: 20px; flex: none; margin-top: 2px; color: var(--amber); }
+  .risk-note b { color: #fcd34d; font-weight: 600; }
+
   /* 区块 */
   section { margin-bottom: 44px; }
   .sec-title {
@@ -257,6 +269,7 @@
     <div class="word" id="v-word"></div>
     <div class="summary" id="v-summary"></div>
   </div>
+  <div class="risk-note" id="risk-note" hidden></div>
   <section class="fade-up" style="animation-delay:.12s">
     <div class="sec-title" id="radar-title"></div>
     <div class="radar-card">
@@ -475,6 +488,11 @@ window.REPORT_DATA = {
   document.getElementById("v-icon").innerHTML = svgIcon(V_ICON[D.verdict] || "trend");
   document.getElementById("v-word").textContent = D.verdict;
   document.getElementById("v-summary").textContent = D.summary;
+  if (D.riskNote) {
+    var rn = document.getElementById("risk-note");
+    rn.innerHTML = svgIcon("alert") + "<span>" + D.riskNote + "</span>";
+    rn.hidden = false;
+  }
 
   // 区块标题
   document.getElementById("radar-title").innerHTML = "维度画像" + svgIcon("chart");
