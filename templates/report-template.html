@@ -107,6 +107,16 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.84; } }
   .verdict .summary { margin-top: 18px; font-size: 15px; color: var(--text-dim); max-width: 600px; margin-inline: auto; }
+  .verdict .conf {
+    margin-top: 16px; display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; letter-spacing: 2px; color: var(--text-faint);
+    background: rgba(148,163,184,0.08); border: 1px solid rgba(148,163,184,0.22);
+    border-radius: 999px; padding: 5px 14px;
+  }
+  .verdict .conf b { color: var(--text-dim); font-weight: 600; }
+  .verdict .conf.hi b { color: var(--green); }
+  .verdict .conf.mid b { color: var(--amber); }
+  .verdict .conf.low b { color: var(--red); }
 
   /* 风险提醒 */
   .risk-note {
@@ -170,17 +180,20 @@
   .dim.ok::before { background: var(--green); box-shadow: 0 0 12px rgba(52,211,153,0.55); }
   .dim.mid::before { background: var(--amber); box-shadow: 0 0 12px rgba(251,191,36,0.55); }
   .dim.bad::before { background: var(--red); box-shadow: 0 0 12px rgba(248,113,113,0.55); }
+  .dim.unk::before { background: var(--text-faint); box-shadow: 0 0 12px rgba(100,116,139,0.4); }
   .dim .d-top { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
   .dim .d-ic { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .dim .d-ic svg { width: 16px; height: 16px; }
   .dim.ok .d-ic { background: rgba(52,211,153,0.12); color: var(--green); }
   .dim.mid .d-ic { background: rgba(251,191,36,0.12); color: var(--amber); }
   .dim.bad .d-ic { background: rgba(248,113,113,0.12); color: var(--red); }
+  .dim.unk .d-ic { background: rgba(148,163,184,0.14); color: var(--text-faint); }
   .dim .d-name { font-size: 14px; font-weight: 600; }
   .dim .d-state { font-size: 12px; font-weight: 600; letter-spacing: 2px; }
   .dim.ok .d-state { color: var(--green); }
   .dim.mid .d-state { color: var(--amber); }
   .dim.bad .d-state { color: var(--red); }
+  .dim.unk .d-state { color: var(--text-faint); }
   .dim .d-reason { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; }
 
   /* 依据列表 */
@@ -193,22 +206,42 @@
   .basis-list li .b-ic { color: var(--cyan); flex-shrink: 0; margin-top: 2px; }
   .basis-list li .b-ic svg { width: 15px; height: 15px; }
 
+  /* 风险提示列表 */
+  .risk-list { list-style: none; }
+  .risk-list li {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 0;
+    border-bottom: 1px solid rgba(148,163,184,0.08);
+    font-size: 14px; color: var(--text-dim);
+  }
+  .risk-list li .r-ic { color: var(--amber); flex-shrink: 0; margin-top: 2px; }
+  .risk-list li .r-ic svg { width: 15px; height: 15px; }
+
   /* 机会点 */
-  .opps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .opps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .opp {
     background: linear-gradient(160deg, rgba(34,211,238,0.08), rgba(13,21,38,0.92) 55%);
     border: 1px solid rgba(34,211,238,0.22); border-radius: 14px; padding: 17px 16px 16px;
     transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
   }
   .opp:hover { transform: translateY(-3px); border-color: rgba(34,211,238,0.45); box-shadow: 0 8px 30px rgba(34,211,238,0.08); }
-  .opp .o-ic {
-    width: 32px; height: 32px; border-radius: 9px; margin-bottom: 10px;
-    background: rgba(34,211,238,0.12); color: var(--cyan);
-    display: flex; align-items: center; justify-content: center;
+  .opp .o-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .opp .o-title { font-size: 15px; font-weight: 700; color: var(--cyan); }
+  .opp .o-title svg { width: 16px; height: 16px; vertical-align: -3px; margin-right: 6px; }
+  .opp .o-badge {
+    font-size: 11.5px; font-weight: 700; letter-spacing: 1px; white-space: nowrap;
+    padding: 4px 10px; border-radius: 999px; border: 1px solid currentColor;
   }
-  .opp .o-ic svg { width: 17px; height: 17px; }
-  .opp .o-title { font-size: 14.5px; font-weight: 600; color: var(--cyan); margin-bottom: 6px; }
-  .opp .o-desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.65; }
+  .opp .o-desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.65; margin-bottom: 12px; }
+  .opp .o-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+  .opp .o-m { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
+  .opp .o-m .k { color: var(--text-faint); letter-spacing: 1px; }
+  .opp .o-m .v { font-weight: 700; }
+  .opp .o-poc {
+    background: rgba(13,21,38,0.72); border: 1px dashed rgba(129,140,248,0.35);
+    border-radius: 10px; padding: 11px 13px; font-size: 12px; color: var(--text-dim); line-height: 1.7;
+  }
+  .opp .o-poc b { color: var(--violet); font-weight: 600; }
+  @media (max-width: 760px) { .opps { grid-template-columns: 1fr; } }
 
   /* 行动 */
   .action {
@@ -268,13 +301,14 @@
     <div class="label">评估结论</div>
     <div class="word" id="v-word"></div>
     <div class="summary" id="v-summary"></div>
+    <div class="conf" id="conf"></div>
   </div>
   <div class="risk-note" id="risk-note" hidden></div>
   <section class="fade-up" style="animation-delay:.12s">
     <div class="sec-title" id="radar-title"></div>
     <div class="radar-card">
       <svg id="radar" viewBox="0 0 420 420" role="img" aria-label="六维度画像雷达图"></svg>
-      <div class="radar-note">维度画像 · 越往外代表该维度越适合 AI 赋能</div>
+      <div class="radar-note">企业 AI 就绪度画像 · 强弱画像，非精确评分</div>
     </div>
   </section>
 
@@ -286,6 +320,11 @@
   <section class="fade-up" style="animation-delay:.24s">
     <div class="sec-title" id="basis-title"></div>
     <ul class="basis-list" id="basis"></ul>
+  </section>
+
+  <section class="fade-up" style="animation-delay:.3s">
+    <div class="sec-title" id="risks-title"></div>
+    <ul class="risk-list" id="risks"></ul>
   </section>
 
   <section class="fade-up" style="animation-delay:.36s">
@@ -319,8 +358,10 @@
 window.REPORT_DATA = {
   businessName: "示例业务：线上课程工作室",
   date: "2026-08-04",
-  verdict: "建议",            // 建议 / 勉强建议 / 不建议 / 非常不建议
-  summary: "课程内容标准化程度高、交付记录完整、出错可快速修正，AI 赋能空间明确。",
+  verdict: "建议",            // 企业四档总览：建议 / 勉强建议 / 不建议 / 非常不建议
+  confidence: "中",           // 置信度：高 / 中 / 低
+  summary: "最有价值的 AI 机会在课件制作与答疑——可自动化程度高、数据完整、风险可兜底。",
+  riskNote: "",              // 可选：平台/合规风险提醒条（如"平台禁止 AI 生成内容"）
   keywords: [                 // 词云：text 为关键词，weight 1~5 决定大小
     { text: "课件制作", weight: 5 },
     { text: "答疑", weight: 4 },
@@ -335,27 +376,49 @@ window.REPORT_DATA = {
     { text: "知识库", weight: 2 },
     { text: "时间成本", weight: 2 }
   ],
-  dimensions: [
-    { name: "业务确定性", state: "ok", stateText: "有利", reason: "课程大纲与课件高度标准化，重复产出内容占大多数时间。" },
-    { name: "数据基础", state: "ok", stateText: "有利", reason: "学员信息、课件、答疑记录均留存于文档与表格中。" },
-    { name: "容错成本", state: "ok", stateText: "有利", reason: "AI 产出有误可人工复核，最坏情况是返工。" },
-    { name: "业务规模", state: "ok", stateText: "有利", reason: "每周需产出多套课件与问答内容，处理量密集。" },
-    { name: "客户关系", state: "ok", stateText: "有利", reason: "学员购买的是课程产品本身，不依赖个人对接。" },
-    { name: "投入意愿", state: "mid", stateText: "中性", reason: "愿意学习，但尚未确定投入时间。" }
+  readiness: [                // 企业 AI 就绪度（雷达 + 明细卡）：state = ok/mid/bad/unk
+    { name: "数据基础", state: "ok", stateText: "强", reason: "学员、课件、答疑记录均留存于文档与表格中。" },
+    { name: "系统集成", state: "mid", stateText: "中", reason: "记录分散在多个文档，需先汇总导出。" },
+    { name: "组织准备", state: "ok", stateText: "强", reason: "老板愿意学，可指定专人负责。" },
+    { name: "流程标准化", state: "ok", stateText: "强", reason: "课件与答疑流程固定、模板成熟。" },
+    { name: "容错兜底", state: "ok", stateText: "强", reason: "AI 产出可人工复核，最坏情况是返工。" },
+    { name: "投入意愿", state: "mid", stateText: "中", reason: "愿意投入时间，但希望先看到明确用法。" }
   ],
   basis: [
-    "每天最耗时的工作是制作课件与整理答疑，属于重复性内容生产。",
+    "每天最耗时的是制作课件与整理答疑，属于重复性内容生产。",
     "学员、课件、聊天记录均有留存，数据基础完整。",
-    "AI 出错可人工复核后重发，代价低。",
-    "每周处理量约 40+ 份内容，规模足够支撑投入。",
-    "老板表示愿意花时间学习，但需要先看到明确用法。"
+    "AI 出错可人工复核后重发，代价低，可发现性强。",
+    "每周需产出 40+ 份内容，经济杠杆明显。",
+    "老板愿意投入时间学习，但需要先看到明确用法。"
+  ],
+  risks: [                    // 可选：与推荐任务相关的风险提示
+    "答疑助手直接面向学员，需保留人工复核，防止错误答案直接触达客户。",
+    "课件素材涉及版权，AI 生成素材发布前需确认来源合规。"
   ],
   opportunities: [
-    { title: "课件初稿生成", desc: "用 AI 按大纲生成课件初稿，人工精修，可省 40% 以上制作时间。" },
-    { title: "答疑助手", desc: "基于历史答疑记录整理高频问题库，AI 先答、人工兜底。" },
-    { title: "内容二创分发", desc: "将课程要点自动改写为公众号/短视频文案。" }
+    {
+      title: "课件初稿生成",
+      verdict: "优先试点",     // A 优先试点 / B 值得验证 / C 先补基础 / D 仅限辅助 / E 暂不投入
+      metrics: { opportunity: "高", feasibility: "高", risk: "低", economics: "高" },
+      desc: "AI 按大纲生成初稿，人工精修，可省约 40% 制作时间；出错可复核，风险可控。",
+      poc: { goal: "验证课件初稿制作时间是否降低 40%", data: "最近 10 份历史课件", method: "AI 初稿与人工制作并行对比", success: "时间降幅 ≥40%，修改次数 ≤2 次" }
+    },
+    {
+      title: "答疑助手",
+      verdict: "值得验证",
+      metrics: { opportunity: "高", feasibility: "中", risk: "中", economics: "中" },
+      desc: "基于历史答疑记录建高频问题库，AI 先答、人工兜底；效果取决于问题库质量。",
+      poc: { goal: "测试 AI 能否正确回答 80% 高频问题", data: "最近 100 条学员答疑记录", method: "AI 回答与人工回答并行抽测", success: "一次通过率 ≥80%，严重错误率 <2%" }
+    },
+    {
+      title: "内容二创分发",
+      verdict: "先补基础",
+      metrics: { opportunity: "中", feasibility: "低", risk: "中", economics: "中" },
+      desc: "课程要点改写为公众号/短视频文案，但发布渠道规则未确认，需先补平台合规基础。",
+      poc: { goal: "确认渠道对 AI 内容的规则并测试转化", data: "3 篇改写文案", method: "小范围发布观察数据", success: "阅读量不低于人工文案均值的 80%" }
+    }
   ],
-  action: "先整理最近 100 条学员答疑记录成一张表格，作为答疑助手的第一份训练素材——今天就能完成。"
+  action: "先整理最近 10 份历史课件交给 AI 生成 10 份初稿，与人工版本对比时间与修改次数——本周完成第一轮对比。"
 };
 // ===== 渲染逻辑（保持不变） =====
 (function () {
@@ -375,7 +438,8 @@ window.REPORT_DATA = {
     trend: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
     target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
     chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-    file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'
+    file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+    help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
   };
 
   var COLOR = {
@@ -390,9 +454,14 @@ window.REPORT_DATA = {
     "不建议": "alert",
     "非常不建议": "xmark"
   };
-  var DIM_ICON = { "业务确定性": "repeat", "数据基础": "database", "容错成本": "shield", "业务规模": "chart", "客户关系": "users", "投入意愿": "zap" };
-  var STATE_ICON = { ok: "check", mid: "alert", bad: "xmark" };
+  var DIM_ICON = { "数据基础": "database", "系统集成": "repeat", "组织准备": "users", "流程标准化": "chart", "容错兜底": "shield", "投入意愿": "zap" };
   var OPP_ICON = ["sparkles", "zap", "trend", "target", "chat", "file"];
+  var OP_COLOR = { "优先试点": "#34d399", "值得验证": "#22d3ee", "先补基础": "#fbbf24", "仅限辅助": "#fb923c", "暂不投入": "#f87171" };
+  function metricColor(key, val) {
+    if (val === "未知") return "#94a3b8";
+    if (key === "risk") return val === "低" ? "#34d399" : (val === "中" ? "#fbbf24" : "#f87171");
+    return val === "高" ? "#34d399" : (val === "中" ? "#fbbf24" : "#f87171");
+  }
   var CLOUD_COLORS = ["#22d3ee", "#818cf8", "#34d399", "#fbbf24", "#f472b6", "#94a3b8"];
 
   function svgIcon(name) { return ICONS[name] || ICONS.sparkles; }
@@ -408,6 +477,11 @@ window.REPORT_DATA = {
   document.getElementById("v-icon").innerHTML = svgIcon(V_ICON[D.verdict] || "trend");
   document.getElementById("v-word").textContent = D.verdict;
   document.getElementById("v-summary").textContent = D.summary;
+  if (D.confidence) {
+    var conf = document.getElementById("conf");
+    conf.innerHTML = "评估置信度：<b>" + D.confidence + "</b>";
+    conf.className = "conf " + (D.confidence === "高" ? "hi" : (D.confidence === "低" ? "low" : "mid"));
+  }
   if (D.riskNote) {
     var rn = document.getElementById("risk-note");
     rn.innerHTML = svgIcon("alert") + "<span>" + D.riskNote + "</span>";
@@ -415,11 +489,12 @@ window.REPORT_DATA = {
   }
 
   // 区块标题
-  document.getElementById("radar-title").innerHTML = "维度画像" + svgIcon("chart");
+  document.getElementById("radar-title").innerHTML = "企业 AI 就绪度画像" + svgIcon("chart");
   document.getElementById("cloud-title").innerHTML = "关键词洞察" + svgIcon("sparkles");
-  document.getElementById("dims-title").innerHTML = "维度状态" + svgIcon("chart");
+  document.getElementById("dims-title").innerHTML = "就绪度明细" + svgIcon("chart");
   document.getElementById("basis-title").innerHTML = "判断依据" + svgIcon("file");
-  document.getElementById("opps-title").innerHTML = "可试水的机会点" + svgIcon("target");
+  document.getElementById("risks-title").innerHTML = "风险提示" + svgIcon("alert");
+  document.getElementById("opps-title").innerHTML = "Top AI 机会" + svgIcon("target");
   document.getElementById("action-title").innerHTML = "第一步行动" + svgIcon("zap");
 
   // 词云（黄金角螺旋布局）
@@ -439,13 +514,13 @@ window.REPORT_DATA = {
   });
   cloud.innerHTML = cloudHtml;
 
-  // 雷达图（六维度画像，值域 1~5）
+  // 雷达图（企业 AI 就绪度画像，强弱映射，不显示数值）
   (function renderRadar() {
     var svg = document.getElementById("radar");
     if (!svg) return;
     var W = 420, H = 420, cx = W / 2, cy = H / 2, R = 140;
-    var names = D.dimensions.map(function (d) { return d.name; });
-    var vals = D.dimensions.map(function (d) { return Math.max(1, Math.min(5, d.value || 3)); });
+    var names = D.readiness.map(function (d) { return d.name + (d.state === "unk" ? "（未知）" : ""); });
+    var vals = D.readiness.map(function (d) { return d.state === "ok" ? 4 : (d.state === "bad" ? 2 : 3); });
     var color = COLOR[D.verdict] || "#22d3ee";
     var n = names.length;
     function pt(i, r) {
@@ -497,17 +572,17 @@ window.REPORT_DATA = {
     }
   })();
 
-  // 维度卡片
+  // 就绪度明细卡片
   var dims = document.getElementById("dims");
-  D.dimensions.forEach(function (d) {
+  D.readiness.forEach(function (d) {
     var el = document.createElement("div");
-    el.className = "dim " + d.state;
+    el.className = "dim " + (d.state || "unk");
     el.innerHTML =
       '<div class="d-top">' +
         '<div class="d-ic">' + svgIcon(DIM_ICON[d.name] || "chart") + '</div>' +
         '<div class="d-name">' + d.name + '</div>' +
       '</div>' +
-      '<div class="d-state">' + (d.stateText || d.state) + '</div>' +
+      '<div class="d-state">' + (d.stateText || (d.state === "unk" ? "未知" : d.state)) + '</div>' +
       '<div class="d-reason">' + d.reason + '</div>';
     dims.appendChild(el);
   });
@@ -520,15 +595,42 @@ window.REPORT_DATA = {
     basis.appendChild(li);
   });
 
-  // 机会点
+  // 风险提示
+  var risks = document.getElementById("risks");
+  if (D.risks && D.risks.length) {
+    D.risks.forEach(function (t) {
+      var li = document.createElement("li");
+      li.innerHTML = '<span class="r-ic">' + svgIcon("alert") + '</span><span>' + t + '</span>';
+      risks.appendChild(li);
+    });
+  } else {
+    document.getElementById("risks-title").closest("section").style.display = "none";
+  }
+
+  // Top AI 机会（任务级）
   var opps = document.getElementById("opps");
   D.opportunities.forEach(function (o, i) {
     var el = document.createElement("div");
     el.className = "opp";
+    var badgeColor = OP_COLOR[o.verdict] || "#22d3ee";
+    var mKeys = [["opportunity", "Opportunity"], ["feasibility", "Feasibility"], ["risk", "Risk"], ["economics", "Economics"]];
+    var metricsHtml = mKeys.map(function (mk) {
+      var v = (o.metrics || {})[mk[0]] || "未知";
+      return '<div class="o-m"><span class="k">' + mk[1] + '</span><span class="v" style="color:' + metricColor(mk[0], v) + '">' + v + '</span></div>';
+    }).join("");
+    var pocHtml = "";
+    if (o.poc) {
+      pocHtml = '<div class="o-poc"><b>最小验证方案</b><br>目标：' + o.poc.goal + '<br>数据：' + o.poc.data +
+        '<br>方式：' + o.poc.method + '<br>成功标准：' + o.poc.success + '</div>';
+    }
     el.innerHTML =
-      '<div class="o-ic">' + svgIcon(OPP_ICON[i % OPP_ICON.length]) + '</div>' +
-      '<div class="o-title">' + o.title + '</div>' +
-      '<div class="o-desc">' + o.desc + '</div>';
+      '<div class="o-top">' +
+        '<div class="o-title">' + svgIcon(OPP_ICON[i % OPP_ICON.length]) + o.title + '</div>' +
+        '<div class="o-badge" style="color:' + badgeColor + '">' + o.verdict + '</div>' +
+      '</div>' +
+      '<div class="o-metrics">' + metricsHtml + '</div>' +
+      '<div class="o-desc">' + o.desc + '</div>' +
+      pocHtml;
     opps.appendChild(el);
   });
 
