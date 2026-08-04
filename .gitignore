@@ -1,0 +1,5 @@
+# 验证截图缓存
+_preview/
+# 真实业务体检报告（含用户隐私，不推送到公开仓库）
+ai-report-*.html
+.DS_Store

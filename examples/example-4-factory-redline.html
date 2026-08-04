@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 赋能适配检测报告</title>
+<style>
+  :root {
+    --bg: #070b14;
+    --card: #0d1526;
+    --card-border: rgba(148, 163, 184, 0.14);
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-faint: #64748b;
+    --cyan: #22d3ee;
+    --violet: #818cf8;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --orange: #fb923c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .bg-grid {
+    position: fixed; inset: 0; z-index: -3;
+    background-image:
+      linear-gradient(rgba(148,163,184,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148,163,184,0.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 40%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 40%, transparent 100%);
+  }
+  .glow {
+    position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+      radial-gradient(600px 300px at 50% -10%, rgba(34,211,238,0.14), transparent 70%),
+      radial-gradient(500px 300px at 85% 40%, rgba(129,140,248,0.08), transparent 70%);
+  }
+  .particle {
+    position: fixed; bottom: -8px; border-radius: 50%; z-index: -1; pointer-events: none;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0); opacity: 0; }
+    12% { opacity: 0.55; }
+    100% { transform: translateY(-92vh); opacity: 0; }
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 56px 24px 72px; }
+
+  /* 头部 */
+  .head { display: flex; align-items: center; gap: 18px; margin-bottom: 40px; }
+  .head .logo {
+    width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(34,211,238,0.22), rgba(129,140,248,0.22));
+    border: 1px solid rgba(34,211,238,0.35);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cyan);
+    box-shadow: 0 0 24px rgba(34,211,238,0.18);
+  }
+  .head .logo svg { width: 26px; height: 26px; }
+  .head h1 {
+    font-size: 27px; font-weight: 700; letter-spacing: 1px;
+    background: linear-gradient(120deg, #f1f5f9, #94a3b8);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .head .tag { font-size: 11px; letter-spacing: 3px; color: var(--text-faint); text-transform: uppercase; margin-top: 2px; }
+  .head .meta { margin-top: 6px; font-size: 13px; color: var(--text-faint); display: flex; gap: 18px; flex-wrap: wrap; }
+
+  /* 结论区 */
+  .verdict {
+    text-align: center;
+    padding: 54px 28px 50px;
+    background: linear-gradient(180deg, rgba(13,21,38,0.92), rgba(13,21,38,0.55));
+    border: 1px solid var(--card-border); border-radius: 20px;
+    position: relative; overflow: hidden; margin-bottom: 40px;
+  }
+  .verdict::before {
+    content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--verdict-color, var(--cyan)), transparent);
+  }
+  .verdict .halo {
+    position: absolute; left: 50%; top: 50%; width: 420px; height: 420px;
+    transform: translate(-50%, -50%);
+    background: conic-gradient(from 0deg, transparent 10%, var(--verdict-color, var(--cyan)), transparent 30%);
+    -webkit-mask: radial-gradient(circle, transparent 52%, #000 56%, #000 58%, transparent 62%);
+    mask: radial-gradient(circle, transparent 52%, #000 56%, #000 58%, transparent 62%);
+    opacity: 0.55; pointer-events: none;
+    animation: spin 7s linear infinite;
+  }
+  @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  .verdict .v-icon { width: 46px; height: 46px; margin: 0 auto 10px; color: var(--verdict-color, var(--cyan)); filter: drop-shadow(0 0 12px currentColor); }
+  .verdict .label { font-size: 12px; letter-spacing: 5px; color: var(--text-faint); margin-bottom: 14px; }
+  .verdict .word {
+    font-size: 54px; font-weight: 800; letter-spacing: 8px; line-height: 1.2;
+    color: var(--verdict-color, var(--cyan));
+    text-shadow: 0 0 46px color-mix(in srgb, var(--verdict-color, var(--cyan)) 42%, transparent);
+    animation: pulse 3.2s ease-in-out infinite;
+    position: relative;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.84; } }
+  .verdict .summary { margin-top: 18px; font-size: 15px; color: var(--text-dim); max-width: 600px; margin-inline: auto; }
+
+  /* 区块 */
+  section { margin-bottom: 44px; }
+  .sec-title {
+    font-size: 14px; font-weight: 600; letter-spacing: 3px; color: var(--text-dim);
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  }
+  .sec-title::before { content: ""; width: 18px; height: 1px; background: var(--cyan); }
+  .sec-title svg { width: 16px; height: 16px; color: var(--cyan); }
+
+  /* 词云 */
+  .cloud-card {
+    background: linear-gradient(160deg, rgba(13,21,38,0.85), rgba(13,21,38,0.5));
+    border: 1px solid var(--card-border); border-radius: 18px;
+    padding: 18px 10px 10px; position: relative; overflow: hidden;
+  }
+  .cloud-card::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(320px 200px at 50% 50%, rgba(34,211,238,0.06), transparent 70%);
+  }
+  .cloud-card svg { display: block; width: 100%; height: auto; }
+  .cloud-card .cw { transition: opacity .2s ease, filter .2s ease; }
+  .cloud-card .cw:hover { opacity: 1 !important; filter: drop-shadow(0 0 7px currentColor); }
+
+  /* 雷达图 */
+  .radar-card {
+    background: linear-gradient(160deg, rgba(13,21,38,0.85), rgba(13,21,38,0.5));
+    border: 1px solid var(--card-border); border-radius: 18px;
+    padding: 22px 16px 12px; margin-bottom: 18px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .radar-card::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(360px 260px at 50% 45%, rgba(34,211,238,0.06), transparent 70%);
+  }
+  .radar-card svg { width: 100%; max-width: 480px; height: auto; position: relative; }
+  .radar-card svg text { fill: var(--text-dim); font-size: 12.5px; }
+  .radar-note { margin-top: 6px; font-size: 11.5px; letter-spacing: 2px; color: var(--text-faint); }
+
+  /* 维度卡片 */
+  .dims { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .dim {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 14px;
+    padding: 16px; position: relative; overflow: hidden;
+    transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+  }
+  .dim:hover { border-color: rgba(148,163,184,0.4); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
+  .dim::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .dim.ok::before { background: var(--green); box-shadow: 0 0 12px rgba(52,211,153,0.55); }
+  .dim.mid::before { background: var(--amber); box-shadow: 0 0 12px rgba(251,191,36,0.55); }
+  .dim.bad::before { background: var(--red); box-shadow: 0 0 12px rgba(248,113,113,0.55); }
+  .dim .d-top { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+  .dim .d-ic { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .dim .d-ic svg { width: 16px; height: 16px; }
+  .dim.ok .d-ic { background: rgba(52,211,153,0.12); color: var(--green); }
+  .dim.mid .d-ic { background: rgba(251,191,36,0.12); color: var(--amber); }
+  .dim.bad .d-ic { background: rgba(248,113,113,0.12); color: var(--red); }
+  .dim .d-name { font-size: 14px; font-weight: 600; }
+  .dim .d-state { font-size: 12px; font-weight: 600; letter-spacing: 2px; }
+  .dim.ok .d-state { color: var(--green); }
+  .dim.mid .d-state { color: var(--amber); }
+  .dim.bad .d-state { color: var(--red); }
+  .dim .d-reason { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; }
+
+  /* 依据列表 */
+  .basis-list { list-style: none; }
+  .basis-list li {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 0;
+    border-bottom: 1px solid rgba(148,163,184,0.08);
+    font-size: 14px; color: var(--text-dim);
+  }
+  .basis-list li .b-ic { color: var(--cyan); flex-shrink: 0; margin-top: 2px; }
+  .basis-list li .b-ic svg { width: 15px; height: 15px; }
+
+  /* 机会点 */
+  .opps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .opp {
+    background: linear-gradient(160deg, rgba(34,211,238,0.08), rgba(13,21,38,0.92) 55%);
+    border: 1px solid rgba(34,211,238,0.22); border-radius: 14px; padding: 17px 16px 16px;
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .opp:hover { transform: translateY(-3px); border-color: rgba(34,211,238,0.45); box-shadow: 0 8px 30px rgba(34,211,238,0.08); }
+  .opp .o-ic {
+    width: 32px; height: 32px; border-radius: 9px; margin-bottom: 10px;
+    background: rgba(34,211,238,0.12); color: var(--cyan);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .opp .o-ic svg { width: 17px; height: 17px; }
+  .opp .o-title { font-size: 14.5px; font-weight: 600; color: var(--cyan); margin-bottom: 6px; }
+  .opp .o-desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.65; }
+
+  /* 行动 */
+  .action {
+    display: flex; gap: 18px; align-items: flex-start;
+    background: linear-gradient(120deg, rgba(129,140,248,0.1), var(--card));
+    border: 1px solid rgba(129,140,248,0.32); border-radius: 16px; padding: 22px 24px;
+    position: relative; overflow: hidden;
+  }
+  .action::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, var(--violet), var(--cyan));
+  }
+  .action .a-ic {
+    width: 42px; height: 42px; border-radius: 11px; flex-shrink: 0;
+    background: rgba(129,140,248,0.14); color: var(--violet);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 18px rgba(129,140,248,0.2);
+  }
+  .action .a-ic svg { width: 21px; height: 21px; }
+  .action .a-text { font-size: 14.5px; color: var(--text); padding-top: 6px; }
+  .action .a-text b { color: #fff; }
+
+  /* 页脚 */
+  .foot {
+    margin-top: 56px; padding-top: 20px; border-top: 1px solid rgba(148,163,184,0.1);
+    font-size: 12px; color: var(--text-faint); text-align: center; letter-spacing: 1px;
+  }
+  @media (max-width: 720px) {
+    .dims, .opps { grid-template-columns: 1fr; }
+    .verdict .word { font-size: 40px; letter-spacing: 5px; }
+    .head h1 { font-size: 22px; }
+  }
+  .fade-up { opacity: 0; transform: translateY(14px); animation: fadeUp .6s ease forwards; }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="glow"></div>
+<div class="wrap">
+
+  <header class="head fade-up">
+    <div class="logo" id="logo"></div>
+    <div>
+      <div class="tag">AI Empowerment Assessment</div>
+      <h1>AI 赋能适配检测报告</h1>
+      <div class="meta">
+        <span id="m-business"></span>
+        <span id="m-date"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="verdict fade-up" id="verdict" style="animation-delay:.06s">
+    <div class="halo"></div>
+    <div class="v-icon" id="v-icon"></div>
+    <div class="label">评估结论</div>
+    <div class="word" id="v-word"></div>
+    <div class="summary" id="v-summary"></div>
+  </div>
+  <section class="fade-up" style="animation-delay:.12s">
+    <div class="sec-title" id="radar-title"></div>
+    <div class="radar-card">
+      <svg id="radar" viewBox="0 0 420 420" role="img" aria-label="六维度画像雷达图"></svg>
+      <div class="radar-note">维度画像 · 越往外代表该维度越适合 AI 赋能</div>
+    </div>
+  </section>
+
+  <section class="fade-up" style="animation-delay:.18s">
+    <div class="sec-title" id="dims-title"></div>
+    <div class="dims" id="dims"></div>
+  </section>
+
+  <section class="fade-up" style="animation-delay:.24s">
+    <div class="sec-title" id="basis-title"></div>
+    <ul class="basis-list" id="basis"></ul>
+  </section>
+
+  <section class="fade-up" style="animation-delay:.36s">
+    <div class="sec-title" id="cloud-title"></div>
+    <div class="cloud-card">
+      <svg id="cloud" viewBox="0 0 560 320" role="img" aria-label="关键词云"></svg>
+    </div>
+  </section>
+
+
+  <section class="fade-up" style="animation-delay:.3s">
+    <div class="sec-title" id="opps-title"></div>
+    <div class="opps" id="opps"></div>
+  </section>
+
+  <section class="fade-up" style="animation-delay:.42s">
+    <div class="sec-title" id="action-title"></div>
+    <div class="action">
+      <div class="a-ic" id="a-ic"></div>
+      <div class="a-text" id="action"></div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>本报告基于本次访谈内容生成 · 仅为方向性判断，不构成投资或经营建议</span>
+  </footer>
+</div>
+
+<script>
+// ===== 报告数据：生成时替换此对象即可，其余代码保持不变 =====
+window.REPORT_DATA = {
+  "businessName": "恒达五金加工厂",
+  "date": "2026-08-04",
+  "verdict": "非常不建议",
+  "summary": "业务核心涉及产线设备改造，触发「重资产物理改造」红线；但报价、客服等环节存在可试水空间。",
+  "keywords": [
+    {
+      "text": "产线改造",
+      "weight": 5
+    },
+    {
+      "text": "工艺参数",
+      "weight": 4
+    },
+    {
+      "text": "老师傅",
+      "weight": 4
+    },
+    {
+      "text": "报废",
+      "weight": 3
+    },
+    {
+      "text": "报价单",
+      "weight": 4
+    },
+    {
+      "text": "对账",
+      "weight": 2
+    },
+    {
+      "text": "来图加工",
+      "weight": 3
+    },
+    {
+      "text": "交期",
+      "weight": 2
+    },
+    {
+      "text": "售后",
+      "weight": 2
+    },
+    {
+      "text": "客户咨询",
+      "weight": 3
+    },
+    {
+      "text": "设备投入",
+      "weight": 4
+    },
+    {
+      "text": "重资产",
+      "weight": 3
+    }
+  ],
+  "dimensions": [
+    {
+      "name": "业务确定性",
+      "state": "mid",
+      "stateText": "中性",
+      "value": 3,
+      "reason": "来图加工，规格相对明确，但工艺依赖师傅经验。"
+    },
+    {
+      "name": "数据基础",
+      "state": "mid",
+      "stateText": "中性",
+      "value": 3,
+      "reason": "订单有记录，工艺参数未沉淀。"
+    },
+    {
+      "name": "容错成本",
+      "state": "bad",
+      "stateText": "不利",
+      "value": 2,
+      "reason": "加工出错直接报废原材料，成本高。"
+    },
+    {
+      "name": "业务规模",
+      "state": "mid",
+      "stateText": "中性",
+      "value": 3,
+      "reason": "订单量中等，非高频重复。"
+    },
+    {
+      "name": "客户关系",
+      "state": "mid",
+      "stateText": "中性",
+      "value": 3,
+      "reason": "既认厂也认对接人。"
+    },
+    {
+      "name": "投入意愿",
+      "state": "mid",
+      "stateText": "中性",
+      "value": 3,
+      "reason": "愿意尝试，但对效果存疑。"
+    }
+  ],
+  "basis": [
+    "核心诉求是产线设备自动化改造，属重资产物理改造红线。",
+    "工艺参数依赖老师傅经验，未数字化沉淀。",
+    "加工失误直接报废材料，容错成本高。",
+    "报价、客服、对账等环节存在 AI 可赋能空间。"
+  ],
+  "opportunities": [
+    {
+      "title": "报价单自动化",
+      "desc": "按材料、工艺快速生成报价初稿，人工确认后发出。"
+    },
+    {
+      "title": "客户咨询整理",
+      "desc": "统一询价与售后话术，减少重复沟通。"
+    },
+    {
+      "title": "工艺知识沉淀",
+      "desc": "把老师傅经验逐步记录成文档，防止人才流失断档。"
+    }
+  ],
+  "action": "先从报价单自动化开始试：整理过去 50 张报价单，让 AI 学习后自动生成初稿。"
+};
+// ===== 渲染逻辑（保持不变） =====
+(function () {
+  var D = window.REPORT_DATA;
+
+  var ICONS = {
+    sparkles: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.7L19.6 10.5l-5.7 1.8L12 18l-1.9-5.7L4.4 10.5l5.7-1.8L12 3z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z"/></svg>',
+    shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+    database: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',
+    users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    zap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    repeat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
+    chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    xmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+    trend: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+    target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+    chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+    file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'
+  };
+
+  var COLOR = {
+    "建议": "#22d3ee",
+    "勉强建议": "#fbbf24",
+    "不建议": "#fb923c",
+    "非常不建议": "#f87171"
+  };
+  var V_ICON = {
+    "建议": "trend",
+    "勉强建议": "zap",
+    "不建议": "alert",
+    "非常不建议": "xmark"
+  };
+  var DIM_ICON = { "业务确定性": "repeat", "数据基础": "database", "容错成本": "shield", "业务规模": "chart", "客户关系": "users", "投入意愿": "zap" };
+  var STATE_ICON = { ok: "check", mid: "alert", bad: "xmark" };
+  var OPP_ICON = ["sparkles", "zap", "trend", "target", "chat", "file"];
+  var CLOUD_COLORS = ["#22d3ee", "#818cf8", "#34d399", "#fbbf24", "#f472b6", "#94a3b8"];
+
+  function svgIcon(name) { return ICONS[name] || ICONS.sparkles; }
+
+  // 头部 logo
+  document.getElementById("logo").innerHTML = svgIcon("sparkles");
+  // 元信息
+  document.getElementById("m-business").textContent = "业务：" + D.businessName;
+  document.getElementById("m-date").textContent = "日期：" + D.date;
+  // 结论
+  var verdict = document.getElementById("verdict");
+  verdict.style.setProperty("--verdict-color", COLOR[D.verdict] || "#22d3ee");
+  document.getElementById("v-icon").innerHTML = svgIcon(V_ICON[D.verdict] || "trend");
+  document.getElementById("v-word").textContent = D.verdict;
+  document.getElementById("v-summary").textContent = D.summary;
+
+  // 区块标题
+  document.getElementById("radar-title").innerHTML = "维度画像" + svgIcon("chart");
+  document.getElementById("cloud-title").innerHTML = "关键词洞察" + svgIcon("sparkles");
+  document.getElementById("dims-title").innerHTML = "维度状态" + svgIcon("chart");
+  document.getElementById("basis-title").innerHTML = "判断依据" + svgIcon("file");
+  document.getElementById("opps-title").innerHTML = "可试水的机会点" + svgIcon("target");
+  document.getElementById("action-title").innerHTML = "第一步行动" + svgIcon("zap");
+
+  // 词云（黄金角螺旋布局）
+  var cloud = document.getElementById("cloud");
+  var kws = (D.keywords || []).slice().sort(function (a, b) { return b.weight - a.weight; });
+  var W = 560, H = 320, cx = W / 2, cy = H / 2, R = Math.min(cx, cy) - 48;
+  var cloudHtml = "";
+  kws.forEach(function (k, i) {
+    var t = kws.length === 1 ? 0 : i / (kws.length - 1);
+    var ang = i * 2.39996;
+    var rad = Math.sqrt(t) * R;
+    var x = cx + rad * Math.cos(ang);
+    var y = cy + rad * Math.sin(ang);
+    var fs = 15 + (k.weight || 1) * 3.4;
+    var rot = (Math.random() * 50 - 25).toFixed(1);
+    cloudHtml += '<text class="cw" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" font-size="' + fs.toFixed(1) + '" fill="' + CLOUD_COLORS[i % CLOUD_COLORS.length] + '" transform="rotate(' + rot + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')" text-anchor="middle" opacity="0.92">' + k.text + '</text>';
+  });
+  cloud.innerHTML = cloudHtml;
+
+  // 雷达图（六维度画像，值域 1~5）
+  (function renderRadar() {
+    var svg = document.getElementById("radar");
+    if (!svg) return;
+    var W = 420, H = 420, cx = W / 2, cy = H / 2, R = 140;
+    var names = D.dimensions.map(function (d) { return d.name; });
+    var vals = D.dimensions.map(function (d) { return Math.max(1, Math.min(5, d.value || 3)); });
+    var color = COLOR[D.verdict] || "#22d3ee";
+    var n = names.length;
+    function pt(i, r) {
+      var a = (Math.PI * 2 * i / n) - Math.PI / 2;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    }
+    var html = "";
+    // 网格层
+    for (var l = 1; l <= 5; l++) {
+      var rr = R * l / 5, pts = [];
+      for (var i = 0; i < n; i++) pts.push(pt(i, rr).join(","));
+      html += '<polygon points="' + pts.join(" ") + '" fill="none" stroke="rgba(148,163,184,0.14)" stroke-width="1"/>';
+    }
+    // 轴线
+    for (var i = 0; i < n; i++) {
+      var p = pt(i, R);
+      html += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p[0] + '" y2="' + p[1] + '" stroke="rgba(148,163,184,0.12)" stroke-width="1"/>';
+    }
+    // 数据多边形
+    var dataPts = [];
+    for (var i = 0; i < n; i++) dataPts.push(pt(i, R * vals[i] / 5).join(","));
+    html += '<polygon id="radar-shape" points="' + dataPts.join(" ") + '" fill="' + color + '" fill-opacity="0.16" stroke="' + color + '" stroke-width="2.2" stroke-linejoin="round" style="filter: drop-shadow(0 0 10px ' + color + '99);"/>';
+    // 顶点
+    for (var i = 0; i < n; i++) {
+      var p = pt(i, R * vals[i] / 5);
+      html += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.4" fill="' + color + '" style="filter: drop-shadow(0 0 5px ' + color + ');"/>';
+    }
+    // 维度标签
+    for (var i = 0; i < n; i++) {
+      var lp = pt(i, R + 27);
+      var anchor = Math.abs(lp[0] - cx) < 12 ? "middle" : (lp[0] < cx ? "end" : "start");
+      var ly = lp[1] + (lp[1] < cy ? -2 : 7);
+      html += '<text x="' + lp[0].toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + anchor + '">' + names[i] + '</text>';
+    }
+    svg.innerHTML = html;
+    // 入场动画
+    var shape = svg.querySelector("#radar-shape");
+    if (shape) {
+      shape.style.transformOrigin = cx + "px " + cy + "px";
+      shape.style.transform = "scale(0.3)";
+      shape.style.opacity = "0";
+      shape.style.transition = "transform .9s cubic-bezier(.22,1,.36,1), opacity .8s ease";
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          shape.style.transform = "scale(1)";
+          shape.style.opacity = "1";
+        });
+      });
+    }
+  })();
+
+  // 维度卡片
+  var dims = document.getElementById("dims");
+  D.dimensions.forEach(function (d) {
+    var el = document.createElement("div");
+    el.className = "dim " + d.state;
+    el.innerHTML =
+      '<div class="d-top">' +
+        '<div class="d-ic">' + svgIcon(DIM_ICON[d.name] || "chart") + '</div>' +
+        '<div class="d-name">' + d.name + '</div>' +
+      '</div>' +
+      '<div class="d-state">' + (d.stateText || d.state) + '</div>' +
+      '<div class="d-reason">' + d.reason + '</div>';
+    dims.appendChild(el);
+  });
+
+  // 判断依据
+  var basis = document.getElementById("basis");
+  D.basis.forEach(function (t) {
+    var li = document.createElement("li");
+    li.innerHTML = '<span class="b-ic">' + svgIcon("check") + '</span><span>' + t + '</span>';
+    basis.appendChild(li);
+  });
+
+  // 机会点
+  var opps = document.getElementById("opps");
+  D.opportunities.forEach(function (o, i) {
+    var el = document.createElement("div");
+    el.className = "opp";
+    el.innerHTML =
+      '<div class="o-ic">' + svgIcon(OPP_ICON[i % OPP_ICON.length]) + '</div>' +
+      '<div class="o-title">' + o.title + '</div>' +
+      '<div class="o-desc">' + o.desc + '</div>';
+    opps.appendChild(el);
+  });
+
+  // 行动
+  document.getElementById("a-ic").innerHTML = svgIcon("target");
+  document.getElementById("action").innerHTML = D.action;
+
+  // 浮动粒子
+  var colors = ["#22d3ee", "#818cf8", "#34d399", "#f472b6"];
+  for (var p = 0; p < 16; p++) {
+    var dot = document.createElement("div");
+    dot.className = "particle";
+    var size = 1 + Math.random() * 2.4;
+    dot.style.cssText =
+      "left:" + (Math.random() * 100).toFixed(1) + "vw;" +
+      "width:" + size.toFixed(1) + "px;height:" + size.toFixed(1) + "px;" +
+      "background:" + colors[p % colors.length] + ";" +
+      "opacity:0;" +
+      "animation-duration:" + (8 + Math.random() * 10).toFixed(1) + "s;" +
+      "animation-delay:" + (Math.random() * 8).toFixed(1) + "s;";
+    document.body.appendChild(dot);
+  }
+})();
+</script>
+</body>
+</html>

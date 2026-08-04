@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI 赋能体检"
+  short_description: "对话式体检生意是否适合 AI 赋能，生成网页报告"
+  default_prompt: "Use $ai-empowerment-checkup to run an AI empowerment checkup for this business, interview the owner, and generate an HTML report."
