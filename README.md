@@ -14,6 +14,7 @@ AIFDE 工程师是一个面向企业老板/个人老板的 AI 机会检测 skill
 - "帮我看看我的公司能不能 AI 赋能"
 - "我想判断是否值得投入 AI"
 - "对我的生意做一次一对一深度调研"（进入深度调研模式）
+- 调研完成后："生成需求文档"（仅调研模式可用，输出开发可执行的需求文档）
 
 **两种模式**：
 
@@ -55,7 +56,7 @@ one-on-one-research/SKILL.md  # 一对一深度调研 skill（第二模式）
 README.md                     # 说明与背书
 references/research-notes.md  # 方法论调研笔记与出处
 templates/report-template.html # 报告视觉模板（深色科技风）
-examples/                     # 6 份验证用示例报告（含深度调研版）
+examples/                     # 6 份验证用示例报告 + 需求文档示例
 agents/openai.yaml            # agent 元信息
 ```
 
