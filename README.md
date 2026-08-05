@@ -13,8 +13,12 @@ AIFDE 工程师是一个面向企业老板/个人老板的 AI 机会检测 skill
 - "检测一下我的生意适不适合用 AI"
 - "帮我看看我的公司能不能 AI 赋能"
 - "我想判断是否值得投入 AI"
+- "对我的生意做一次一对一深度调研"（进入深度调研模式）
 
-Codex 会按 `SKILL.md` 的约束与你对话 13~18 轮（上限 20 轮），摸清业务基本盘、识别 3~5 个候选任务、对 Top 2~3 深挖评估，随后给出结论与 PoC 方案并生成单文件 HTML 报告。
+**两种模式**：
+
+- **AIFDE 工程师（检测）**：对话 13~18 轮（上限 20 轮），快速筛查 3~5 个候选任务，输出四档总览 + 任务级 A~E + PoC，约 10 分钟。
+- **一对一调研（深度）**：30~50 分钟一对一深访，识别 3~8 个候选任务、筛 Top 3 逐个深挖 Opportunity / Feasibility / Risk / Economics（含系统集成难度、ROI、回本周期、AI 自主等级），输出 PoC 与 3/6 个月回访跟踪。
 
 也可以直接说："让 AIFDE 工程师帮我测测我的生意适不适合用 AI。"
 
@@ -47,10 +51,11 @@ Codex 会按 `SKILL.md` 的约束与你对话 13~18 轮（上限 20 轮），摸
 
 ```
 SKILL.md                      # skill 行为约束与访谈流程（核心）
+one-on-one-research/SKILL.md  # 一对一深度调研 skill（第二模式）
 README.md                     # 说明与背书
 references/research-notes.md  # 方法论调研笔记与出处
 templates/report-template.html # 报告视觉模板（深色科技风）
-examples/                     # 5 份验证用示例报告
+examples/                     # 6 份验证用示例报告（含深度调研版）
 agents/openai.yaml            # agent 元信息
 ```
 
