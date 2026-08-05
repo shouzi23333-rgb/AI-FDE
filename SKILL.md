@@ -1,9 +1,9 @@
 ---
-name: ai-fde
-description: ai-fde：融合 IBM AI Ladder、Gartner AI 成熟度模型等国际框架与多年一线实战经验，通过对话摸清业务里 3~5 个具体任务，逐个评估值不值得做（Opportunity）、能不能做（Feasibility）、有没有风险（Risk）、划不划算（Economics），输出任务级结论（优先试点/值得验证/先补基础/仅限辅助/暂不投入）与企业四档总览，并生成带就绪度雷达图、词云、PoC 方案的深色科技风报告。测完再投钱，不让老板花冤枉钱。当用户想检测自己的生意/公司适不适合用 AI、让 ai-fde评估、AI 能否赋能自己的业务、想判断哪些环节值得投入 AI 时使用。
+name: AI-FDE
+description: AI-FDE：融合 IBM AI Ladder、Gartner AI 成熟度模型等国际框架与多年一线实战经验，通过对话摸清业务里 3~5 个具体任务，逐个评估值不值得做（Opportunity）、能不能做（Feasibility）、有没有风险（Risk）、划不划算（Economics），输出任务级结论（优先试点/值得验证/先补基础/仅限辅助/暂不投入）与企业四档总览，并生成带就绪度雷达图、词云、PoC 方案的深色科技风报告。测完再投钱，不让老板花冤枉钱。当用户想检测自己的生意/公司适不适合用 AI、让 AI-FDE评估、AI 能否赋能自己的业务、想判断哪些环节值得投入 AI 时使用。
 ---
 
-# ai-fde
+# AI-FDE
 
 ## 定位
 

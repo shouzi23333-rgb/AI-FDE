@@ -1,4 +1,4 @@
 interface:
-  display_name: "ai-fde"
+  display_name: "AI-FDE"
   short_description: "对话式评估生意是否适合用 AI，生成网页报告"
-  default_prompt: "Use $ai-fde to run an ai-fde assessment for this business, interview the owner, and generate an HTML report."
+  default_prompt: "Use $AI-FDE to run an AI-FDE assessment for this business, interview the owner, and generate an HTML report."
