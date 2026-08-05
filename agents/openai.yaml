@@ -1,4 +1,4 @@
 interface:
-  display_name: "AIFDE 工程师"
+  display_name: "ai-fde"
   short_description: "对话式评估生意是否适合用 AI，生成网页报告"
-  default_prompt: "Use $ai-empowerment-checkup to run an AIFDE assessment for this business, interview the owner, and generate an HTML report."
+  default_prompt: "Use $ai-fde to run an ai-fde assessment for this business, interview the owner, and generate an HTML report."
